@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/icexin/gocraft/model"
 )
 
 const (
@@ -44,9 +45,9 @@ func (v Vec3) Chunkid() Vec3 {
 
 func NearBlock(pos mgl32.Vec3) Vec3 {
 	return Vec3{
-		int(round(pos.X())),
-		int(round(pos.Y())),
-		int(round(pos.Z())),
+		int(model.Round(pos.X())),
+		int(model.Round(pos.Y())),
+		int(model.Round(pos.Z())),
 	}
 }
 

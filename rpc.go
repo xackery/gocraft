@@ -9,6 +9,7 @@ import (
 
 	gocraft "github.com/icexin/gocraft-server/client"
 	"github.com/icexin/gocraft-server/proto"
+	"github.com/icexin/gocraft/model"
 )
 
 var (
@@ -86,7 +87,7 @@ func ClientUpdateBlock(id Vec3, w int) {
 	store.UpdateChunkVersion(id.Chunkid(), rep.Version)
 }
 
-func ClientUpdatePlayerState(state PlayerState) {
+func ClientUpdatePlayerState(state model.PlayerState) {
 	if client == nil {
 		return
 	}

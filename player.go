@@ -8,18 +8,15 @@ import (
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/icexin/gocraft-server/proto"
+	"github.com/icexin/gocraft/model"
 )
 
-type PlayerState struct {
-	X, Y, Z float32
-	Rx, Ry  float32
-}
-
 type playerState struct {
-	PlayerState
+	model.PlayerState
 	time float64
 }
 
+// Player represents a player
 type Player struct {
 	s1, s2 playerState
 
@@ -31,18 +28,18 @@ type Player struct {
 func (p *Player) computeMat() mgl32.Mat4 {
 	t1 := p.s2.time - p.s1.time
 	t2 := glfw.GetTime() - p.s2.time
-	t := min(float32(t2/t1), 1)
+	t := model.Min(float32(t2/t1), 1)
 
-	x := mix(p.s1.X, p.s2.X, t)
-	y := mix(p.s1.Y, p.s2.Y, t)
-	z := mix(p.s1.Z, p.s2.Z, t)
-	rx := mix(p.s1.Rx, p.s2.Rx, t)
-	ry := mix(p.s1.Ry, p.s2.Ry, t)
+	x := model.Mix(p.s1.X, p.s2.X, t)
+	y := model.Mix(p.s1.Y, p.s2.Y, t)
+	z := model.Mix(p.s1.Z, p.s2.Z, t)
+	rx := model.Mix(p.s1.Rx, p.s2.Rx, t)
+	ry := model.Mix(p.s1.Ry, p.s2.Ry, t)
 
 	front := mgl32.Vec3{
-		cos(radian(ry)) * cos(radian(rx)),
-		sin(radian(ry)),
-		cos(radian(ry)) * sin(radian(rx)),
+		model.Cos(model.Radian(ry)) * model.Cos(model.Radian(rx)),
+		model.Sin(model.Radian(ry)),
+		model.Cos(model.Radian(ry)) * model.Sin(model.Radian(rx)),
 	}.Normalize()
 	right := front.Cross(mgl32.Vec3{0, 1, 0})
 	up := right.Cross(front).Normalize()
@@ -107,7 +104,7 @@ func NewPlayerRender() (*PlayerRender, error) {
 
 func (r *PlayerRender) UpdateOrAdd(id int32, s proto.PlayerState) {
 	state := playerState{
-		PlayerState: PlayerState{
+		PlayerState: model.PlayerState{
 			X:  s.X,
 			Y:  s.Y,
 			Z:  s.Z,

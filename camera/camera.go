@@ -1,6 +1,9 @@
-package main
+package camera
 
-import "github.com/go-gl/mathgl/mgl32"
+import (
+	"github.com/go-gl/mathgl/mgl32"
+	"github.com/icexin/gocraft/model"
+)
 
 type CameraMovement int
 
@@ -22,31 +25,34 @@ type Camera struct {
 
 	Sens float32
 
-	flying bool
+	isFlying bool
 }
 
-func NewCamera(pos mgl32.Vec3) *Camera {
+// New creates a new camera
+func New(pos mgl32.Vec3) *Camera {
 	c := &Camera{
-		pos:     pos,
-		front:   mgl32.Vec3{0, 0, -1},
-		rotatey: 0,
-		rotatex: -90,
-		Sens:    0.14,
-		flying:  false,
+		pos:      pos,
+		front:    mgl32.Vec3{0, 0, -1},
+		rotatey:  0,
+		rotatex:  -90,
+		Sens:     0.14,
+		isFlying: false,
 	}
 	c.updateAngles()
 	return c
 }
 
-func (c *Camera) Restore(state PlayerState) {
+// Restore restores a camera's position
+func (c *Camera) Restore(state model.PlayerState) {
 	c.pos = mgl32.Vec3{state.X, state.Y, state.Z}
 	c.rotatex = state.Rx
 	c.rotatey = state.Ry
 	c.updateAngles()
 }
 
-func (c *Camera) State() PlayerState {
-	return PlayerState{
+// State returns the current player state
+func (c *Camera) State() model.PlayerState {
+	return model.PlayerState{
 		X:  c.pos.X(),
 		Y:  c.pos.Y(),
 		Z:  c.pos.Z(),
@@ -55,28 +61,34 @@ func (c *Camera) State() PlayerState {
 	}
 }
 
+// Matrix returns a camera's matrix
 func (c *Camera) Matrix() mgl32.Mat4 {
 	return mgl32.LookAtV(c.pos, c.pos.Add(c.front), c.up)
 }
 
+// SetPos will set a camera's position
 func (c *Camera) SetPos(pos mgl32.Vec3) {
 	c.pos = pos
 }
 
+// Pos returns a camera's position
 func (c *Camera) Pos() mgl32.Vec3 {
 	return c.pos
 }
 
+// Front returns the front vector of a camera
 func (c *Camera) Front() mgl32.Vec3 {
 	return c.front
 }
 
+// FlipFlying toggles the flying option
 func (c *Camera) FlipFlying() {
-	c.flying = !c.flying
+	c.isFlying = !c.isFlying
 }
 
-func (c *Camera) Flying() bool {
-	return c.flying
+// IsFlying returns if a camera is flying or not
+func (c *Camera) IsFlying() bool {
+	return c.isFlying
 }
 
 func (c *Camera) OnAngleChange(dx, dy float32) {
@@ -95,18 +107,18 @@ func (c *Camera) OnAngleChange(dx, dy float32) {
 }
 
 func (c *Camera) OnMoveChange(dir CameraMovement, delta float32) {
-	if c.flying {
+	if c.isFlying {
 		delta = 5 * delta
 	}
 	switch dir {
 	case MoveForward:
-		if c.flying {
+		if c.isFlying {
 			c.pos = c.pos.Add(c.front.Mul(delta))
 		} else {
 			c.pos = c.pos.Add(c.wfront.Mul(delta))
 		}
 	case MoveBackward:
-		if c.flying {
+		if c.isFlying {
 			c.pos = c.pos.Sub(c.front.Mul(delta))
 		} else {
 			c.pos = c.pos.Sub(c.wfront.Mul(delta))
@@ -119,9 +131,9 @@ func (c *Camera) OnMoveChange(dir CameraMovement, delta float32) {
 }
 func (c *Camera) updateAngles() {
 	front := mgl32.Vec3{
-		cos(radian(c.rotatey)) * cos(radian(c.rotatex)),
-		sin(radian(c.rotatey)),
-		cos(radian(c.rotatey)) * sin(radian(c.rotatex)),
+		model.Cos(model.Radian(c.rotatey)) * model.Cos(model.Radian(c.rotatex)),
+		model.Sin(model.Radian(c.rotatey)),
+		model.Cos(model.Radian(c.rotatey)) * model.Sin(model.Radian(c.rotatex)),
 	}
 	c.front = front.Normalize()
 	c.right = c.front.Cross(mgl32.Vec3{0, 1, 0}).Normalize()

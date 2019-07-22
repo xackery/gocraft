@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-gl/mathgl/mgl32"
 	lru "github.com/hashicorp/golang-lru"
+	"github.com/icexin/gocraft/model"
 )
 
 type World struct {
@@ -35,7 +36,7 @@ func (w *World) storeChunk(id Vec3, chunk *Chunk) {
 
 func (w *World) Collide(pos mgl32.Vec3) (mgl32.Vec3, bool) {
 	x, y, z := pos.X(), pos.Y(), pos.Z()
-	nx, ny, nz := round(pos.X()), round(pos.Y()), round(pos.Z())
+	nx, ny, nz := model.Round(pos.X()), model.Round(pos.Y()), model.Round(pos.Z())
 	const pad = 0.25
 
 	head := Vec3{int(nx), int(ny), int(nz)}
@@ -218,8 +219,8 @@ func makeChunkMap(cid Vec3) map[Vec3]int {
 	for dx := 0; dx < ChunkWidth; dx++ {
 		for dz := 0; dz < ChunkWidth; dz++ {
 			x, z := p*ChunkWidth+dx, q*ChunkWidth+dz
-			f := noise2(float32(x)*0.01, float32(z)*0.01, 4, 0.5, 2)
-			g := noise2(float32(-x)*0.01, float32(-z)*0.01, 2, 0.9, 2)
+			f := model.Noise2(float32(x)*0.01, float32(z)*0.01, 4, 0.5, 2)
+			g := model.Noise2(float32(-x)*0.01, float32(-z)*0.01, 2, 0.9, 2)
 			mh := int(g*32 + 16)
 			h := int(f * float32(mh))
 			w := grassBlock
@@ -234,11 +235,11 @@ func makeChunkMap(cid Vec3) map[Vec3]int {
 
 			// flowers
 			if w == grassBlock {
-				if noise2(-float32(x)*0.1, float32(z)*0.1, 4, 0.8, 2) > 0.6 {
+				if model.Noise2(-float32(x)*0.1, float32(z)*0.1, 4, 0.8, 2) > 0.6 {
 					m[Vec3{x, h, z}] = grass
 				}
-				if noise2(float32(x)*0.05, float32(-z)*0.05, 4, 0.8, 2) > 0.7 {
-					w := 18 + int(noise2(float32(x)*0.1, float32(z)*0.1, 4, 0.8, 2)*7)
+				if model.Noise2(float32(x)*0.05, float32(-z)*0.05, 4, 0.8, 2) > 0.7 {
+					w := 18 + int(model.Noise2(float32(x)*0.1, float32(z)*0.1, 4, 0.8, 2)*7)
 					m[Vec3{x, h, z}] = w
 				}
 			}
@@ -250,7 +251,7 @@ func makeChunkMap(cid Vec3) map[Vec3]int {
 					dx+4 > ChunkWidth || dz+4 > ChunkWidth {
 					ok = false
 				}
-				if ok && noise2(float32(x), float32(z), 6, 0.5, 2) > 0.79 {
+				if ok && model.Noise2(float32(x), float32(z), 6, 0.5, 2) > 0.79 {
 					for y := h + 3; y < h+8; y++ {
 						for ox := -3; ox <= 3; ox++ {
 							for oz := -3; oz <= 3; oz++ {
@@ -269,7 +270,7 @@ func makeChunkMap(cid Vec3) map[Vec3]int {
 
 			// cloud
 			for y := 64; y < 72; y++ {
-				if noise3(float32(x)*0.01, float32(y)*0.1, float32(z)*0.01, 8, 0.5, 2) > 0.69 {
+				if model.Noise3(float32(x)*0.01, float32(y)*0.1, float32(z)*0.01, 8, 0.5, 2) > 0.69 {
 					m[Vec3{x, y, z}] = 16
 				}
 			}

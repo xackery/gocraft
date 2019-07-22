@@ -13,6 +13,7 @@ import (
 	"github.com/faiface/mainthread"
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/icexin/gocraft/model"
 )
 
 var (
@@ -195,7 +196,7 @@ func isChunkVisiable(planes []mgl32.Vec4, id Vec3) bool {
 func (r *BlockRender) get3dmat() mgl32.Mat4 {
 	n := float32(*renderRadius * ChunkWidth)
 	width, height := game.win.GetSize()
-	mat := mgl32.Perspective(radian(45), float32(width)/float32(height), 0.01, n)
+	mat := mgl32.Perspective(model.Radian(45), float32(width)/float32(height), 0.01, n)
 	mat = mat.Mul4(game.camera.Matrix())
 	return mat
 }
@@ -391,10 +392,10 @@ func (r *BlockRender) drawItem() {
 	width, height := game.win.GetSize()
 	ratio := float32(width) / float32(height)
 	projection := mgl32.Ortho2D(0, 15, 0, 15/ratio)
-	model := mgl32.Translate3D(1, 1, 0)
-	model = model.Mul4(mgl32.HomogRotate3DX(radian(10)))
-	model = model.Mul4(mgl32.HomogRotate3DY(radian(45)))
-	mat := projection.Mul4(model)
+	mod := mgl32.Translate3D(1, 1, 0)
+	mod = mod.Mul4(mgl32.HomogRotate3DX(model.Radian(10)))
+	mod = mod.Mul4(mgl32.HomogRotate3DY(model.Radian(45)))
+	mat := projection.Mul4(mod)
 	r.shader.SetUniformAttr(0, mat)
 	r.shader.SetUniformAttr(1, mgl32.Vec3{0, 0, 0})
 	r.shader.SetUniformAttr(2, float32(*renderRadius)*ChunkWidth)
@@ -630,7 +631,7 @@ func (r *LineRender) drawWireFrame(mat mgl32.Mat4) {
 
 func (r *LineRender) Draw() {
 	width, height := game.win.GetSize()
-	projection := mgl32.Perspective(radian(45), float32(width)/float32(height), 0.01, ChunkWidth*float32(*renderRadius))
+	projection := mgl32.Perspective(model.Radian(45), float32(width)/float32(height), 0.01, ChunkWidth*float32(*renderRadius))
 	camera := game.camera.Matrix()
 	mat := projection.Mul4(camera)
 

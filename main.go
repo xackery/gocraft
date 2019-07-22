@@ -15,6 +15,7 @@ import (
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/icexin/gocraft/camera"
 )
 
 var (
@@ -26,7 +27,7 @@ var (
 type Game struct {
 	win *glfw.Window
 
-	camera   *Camera
+	camera   *camera.Camera
 	lx, ly   float64
 	vy       float32
 	prevtime float64
@@ -87,7 +88,7 @@ func NewGame(w, h int) (*Game, error) {
 		game.win = win
 	})
 	game.world = NewWorld()
-	game.camera = NewCamera(mgl32.Vec3{0, 16, 0})
+	game.camera = camera.New(mgl32.Vec3{0, 16, 0})
 	game.blockRender, err = NewBlockRender()
 	if err != nil {
 		return nil, err
@@ -198,27 +199,27 @@ func (g *Game) onKeyCallback(win *glfw.Window, key glfw.Key, scancode int, actio
 
 func (g *Game) handleKeyInput(dt float64) {
 	speed := float32(0.1)
-	if g.camera.flying {
+	if g.camera.IsFlying() {
 		speed = 0.2
 	}
 	if g.win.GetKey(glfw.KeyEscape) == glfw.Press {
 		g.setExclusiveMouse(false)
 	}
 	if g.win.GetKey(glfw.KeyW) == glfw.Press {
-		g.camera.OnMoveChange(MoveForward, speed)
+		g.camera.OnMoveChange(camera.MoveForward, speed)
 	}
 	if g.win.GetKey(glfw.KeyS) == glfw.Press {
-		g.camera.OnMoveChange(MoveBackward, speed)
+		g.camera.OnMoveChange(camera.MoveBackward, speed)
 	}
 	if g.win.GetKey(glfw.KeyA) == glfw.Press {
-		g.camera.OnMoveChange(MoveLeft, speed)
+		g.camera.OnMoveChange(camera.MoveLeft, speed)
 	}
 	if g.win.GetKey(glfw.KeyD) == glfw.Press {
-		g.camera.OnMoveChange(MoveRight, speed)
+		g.camera.OnMoveChange(camera.MoveRight, speed)
 	}
 	pos := g.camera.Pos()
 	stop := false
-	if !g.camera.Flying() {
+	if !g.camera.IsFlying() {
 		g.vy -= float32(dt * 20)
 		if g.vy < -50 {
 			g.vy = -50
@@ -259,6 +260,7 @@ func (g *Game) syncPlayerLoop() {
 	}
 }
 
+// Update is the game's main update loop
 func (g *Game) Update() {
 	mainthread.Call(func() {
 		var dt float64

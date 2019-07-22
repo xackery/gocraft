@@ -9,6 +9,7 @@ import (
 	"log"
 
 	"github.com/boltdb/bolt"
+	"github.com/icexin/gocraft/model"
 )
 
 var (
@@ -80,7 +81,7 @@ func (s *Store) UpdateBlock(id Vec3, w int) error {
 	})
 }
 
-func (s *Store) UpdatePlayerState(state PlayerState) error {
+func (s *Store) UpdatePlayerState(state model.PlayerState) error {
 	return s.db.Update(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket(cameraBucket)
 		buf := new(bytes.Buffer)
@@ -90,8 +91,8 @@ func (s *Store) UpdatePlayerState(state PlayerState) error {
 	})
 }
 
-func (s *Store) GetPlayerState() PlayerState {
-	var state PlayerState
+func (s *Store) GetPlayerState() model.PlayerState {
+	var state model.PlayerState
 	state.Y = 16
 	s.db.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket(cameraBucket)
